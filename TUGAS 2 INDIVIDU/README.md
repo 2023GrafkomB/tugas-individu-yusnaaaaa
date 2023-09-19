@@ -18,4 +18,4 @@ Membuat aplikasi dengan WEBGL sbb:
 
 - ada interaksi user untuk stop dan start animasi (mouse, keyboard)
 
-Note : Untuk menjalankan index.html menggunakan Open with Live Server
+Note : Untuk menjalankan `index.html` menggunakan Open with Live Server
