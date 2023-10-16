@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>3D Object with Shadows</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #D5A1A3;
+        color: #fff;
+        border: none;
+        margin: 5px;
+        cursor: pointer;
+        border-radius: 10px;
+      }
+
+      button:hover {
+        background-color: #D5A1A3;
+      }
+    </style>
+    <script src="js/three.min.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+  </head>
+  <body>
+    <button id="startButton">Start</button>
+    <button id="stopButton">Stop</button>
+  </body>
+</html>
+
+<script>
+  let scene, camera, renderer, light1, controls, cube, sphere, cylinder, torus, texture;
+  let ADD = 0.05;
+  let animationId;
+
+  let onMouseClick = function (e) {
+    ADD *= 0.8;
+    let x = e.clientX;
+    let y = e.clientY;
+    console.log(x + ", " + y);
+  };
+
+  let createAdditionalGeometry = function () {
+    // Sphere
+    let sphereGeometry = new THREE.SphereGeometry(3, 32, 32);
+    // Load Sphere Texture
+    let sphereTexture = new THREE.TextureLoader().load("images/texture2.jpg");
+    let sphereMaterial = new THREE.MeshPhongMaterial({ map: sphereTexture });
+    sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    sphere.position.set(-8, 3, 0);
+    sphere.castShadow = true; // Aktifkan bayangan
+    scene.add(sphere);
+
+    // Cylinder
+    let cylinderGeometry = new THREE.CylinderGeometry(2, 2, 6, 32);
+    // Load Cylinder Texture
+    let cylinderTexture = new THREE.TextureLoader().load("images/texture5.jpg");
+    let cylinderMaterial = new THREE.MeshPhongMaterial({ map: cylinderTexture });
+    cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+    cylinder.position.set(8, 3, 0);
+    cylinder.castShadow = true; // Aktifkan bayangan
+    scene.add(cylinder);
+
+    // Torus
+    let torusGeometry = new THREE.TorusGeometry(4, 1, 10, 70);
+    // Load Torus Texture
+    let torusTexture = new THREE.TextureLoader().load("images/texture3.jpg");
+    let torusMaterial = new THREE.MeshPhongMaterial({ map: torusTexture });
+    torus = new THREE.Mesh(torusGeometry, torusMaterial);
+    torus.position.set(0, 3, 8);
+    torus.castShadow = true; // Aktifkan bayangan
+    scene.add(torus);
+  };
+
+  let createGeometry = function () {
+    texture = new THREE.TextureLoader().load("images/texture1.jpg");
+    let material = new THREE.MeshPhongMaterial({
+      color: 0Xaaaaaa,
+      shininess: 40,
+      map: texture,
+    });
+    let geometry = new THREE.BoxGeometry(5, 5, 5);
+    cube = new THREE.Mesh(geometry, material);
+    cube.castShadow = true; // Aktifkan bayangan
+    scene.add(cube);
+
+    texture = new THREE.TextureLoader().load("images/texture6.jpg");
+    geometry = new THREE.BoxGeometry(2000, 1, 2000);
+    material = new THREE.MeshPhongMaterial({
+      color: 0X697159,
+      map: texture,
+    });
+    plane = new THREE.Mesh(geometry, material);
+    plane.position.y = -10;
+    plane.receiveShadow = true; // Aktifkan bayangan pada latar belakang
+    scene.add(plane);
+  };
+
+  let init = function () {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
+
+    camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      1,
+      1000
+    );
+
+    camera.position.set(15, 10, 15);
+
+    let light = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(light);
+
+    light1 = new THREE.DirectionalLight(0xffffff, 1);
+    light1.position.set(5, 5, 10);
+    light1.castShadow = true; // Aktifkan bayangan dari cahaya
+    scene.add(light1);
+
+    createGeometry();
+    createAdditionalGeometry();
+
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Tipe bayangan yang lebih halus
+
+    document.body.appendChild(renderer.domElement);
+    document.addEventListener("click", onMouseClick, false);
+
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.listenToKeyEvents(window);
+
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.screenSpacePanning = false;
+
+    // Tombol Start
+    document.getElementById("startButton").addEventListener("click", function () {
+      startAnimation();
+    });
+
+    // Tombol Stop
+    document.getElementById("stopButton").addEventListener("click", function () {
+      stopAnimation();
+    });
+
+    // Menangani perubahan ukuran layar
+    window.addEventListener("resize", function () {
+      const newWidth = window.innerWidth;
+      const newHeight = window.innerHeight;
+      renderer.setSize(newWidth, newHeight);
+      camera.aspect = newWidth / newHeight;
+      camera.updateProjectionMatrix();
+    });
+  };
+
+  let animate = function () {
+    animationId = requestAnimationFrame(animate);
+    cube.rotation.x += ADD;
+    cube.rotation.y += ADD;
+
+    sphere.rotation.x += ADD;
+    sphere.rotation.y += ADD;
+
+    cylinder.rotation.x += ADD;
+    cylinder.rotation.y += ADD;
+
+    torus.rotation.x += ADD;
+    torus.rotation.y += ADD;
+
+    renderer.render(scene, camera);
+    controls.update();
+  };
+
+  // Fungsi untuk memulai animasi
+  function startAnimation() {
+    if (!animationId) {
+      animate();
+    }
+  }
+
+  // Fungsi untuk menghentikan animasi
+  function stopAnimation() {
+    if (animationId) {
+      cancelAnimationFrame(animationId);
+      animationId = undefined;
+    }
+  }
+
+  init();
+</script>

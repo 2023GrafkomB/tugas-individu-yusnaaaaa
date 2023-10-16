@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Load 3D Object</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      #animation-control {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+      }
+      #start-animation, #stop-animation {
+        background-color: #D5A1A3;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        margin: 5px;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+      #start-animation:hover, #stop-animation:hover {
+        background-color: #D5A1A3;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="start-animation">Start Animation</button>
+    <button id="stop-animation">Stop Animation</button>
+    <script type="module" src="index.js"></script>
+
+    <script>
+      const startButton = document.getElementById('start-animation');
+      const stopButton = document.getElementById('stop-animation');
+
+      startButton.addEventListener('click', startAnimation);
+      stopButton.addEventListener('click', stopAnimation);
+
+      function startAnimation() {
+        animate(); // Mulai animasi
+      }
+
+      function stopAnimation() {
+        cancelAnimationFrame(animationId); // Hentikan animasi
+      }
+    </script>
+  </body>
+</html>
